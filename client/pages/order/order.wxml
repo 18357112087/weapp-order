@@ -1,0 +1,44 @@
+<import src="../../component/field/index.wxml" />
+<view class="container">
+  <form bindsubmit="formSubmit" bindreset="formReset">
+    <view class="zan-panel">
+      <template
+        is="zan-field"
+        data="{{ ...form.name }}"></template>
+      <template
+        is="zan-field"
+        data="{{ ...form.tel }}"></template>
+      <view class="zan-cell zan-field">
+        <view class="zan-cell__hd zan-field__title">按摩师:</view>
+        <picker
+          mode="selector"
+          class="zan-field__input zan-cell__bd"
+          range="{{ master }}"
+          range-key="{{'name'}}"
+          value="{{ masterIndex }}"
+          bindchange="onMasterChange"
+        >
+          {{ master[masterIndex].name }}
+        </picker>
+      </view>
+      <view class="zan-cell zan-field">
+        <picker class="zan-field__input zan-cell__bd" 
+          mode="date" 
+          value="{{date}}" 
+          start="{{startDate}}" 
+          end="{{endDate}}" 
+          bindchange="bindDateChange"
+        >
+          <view class="picker">
+            预约时间: {{date}}
+          </view>
+        </picker>
+      </view>
+      <view class="zan-btns">
+        <button
+          class="zan-btn zan-btn--primary"
+          formType="submit">提交数据</button>
+      </view>
+    </view>
+  </form>
+</view>
