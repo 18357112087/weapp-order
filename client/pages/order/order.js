@@ -3,6 +3,7 @@ const Zan = require('../../component/index');
 const util = require('../../utils/util.js');
 const qcloud = require('../../vendor/wafer2-client-sdk/index');
 var config = require('../../config')
+const app = getApp()
 Page(Object.assign({}, Zan.Field, {
 
   /**
@@ -23,7 +24,10 @@ Page(Object.assign({}, Zan.Field, {
       }
     },
     master: [],
-    masterIndex: 0
+    masterIndex: 0,
+    name: null,
+    tel: null,
+    valid: false
   },
 
   /**
@@ -31,31 +35,85 @@ Page(Object.assign({}, Zan.Field, {
    */
   onLoad: function (options) {
     const that = this
+    
+    if(!app.globalData.userInfo) {
+      util.showBusy('正在登录')
+      qcloud.login({
+        success(result) {
+          if (result) {
+            util.showSuccess('登录成功')
+            app.globalData.userInfo = result
+          } else {
+            // 如果不是首次登录，不会返回用户信息，请求用户信息接口获取
+            qcloud.request({
+              url: config.service.requestUrl,
+              login: true,
+              success(result) {
+                util.showSuccess('登录成功')
+                app.globalData.userInfo = result
+              },
+
+              fail(error) {
+                util.showModel('请求失败', error)
+                console.log('request fail', error)
+              }
+            })
+          }
+        },
+
+        fail(error) {
+          util.showModel('登录失败', error)
+          console.log('登录失败', error)
+        }
+      })
+    }
     qcloud.request({
       method: 'get',
       url: config.service.master,
       success(result) {
-        that.setData({master: result.data.data})
+        that.setData({master: [{id:0, name: '请选择'}].concat(result.data.data)})
       }
     })
   },
   onMasterChange(e) {
     this.setData({
-      masterIndex: e.detail.value
+      masterIndex: e.detail.value,
+      valid: e.detail.value != 0 && this.data.date && this.data.name && this.data.tel
     });
   },
   bindDateChange(e) {
     this.setData({
-      date: e.detail.value
+      date: e.detail.value,
+      valid: this.data.masterIndex && this.data.name && this.data.tel
     });
   },
   handleZanFieldChange(e) {
     const { componentId, detail } = e;
 
-    console.log('[zan:field:change]', componentId, detail);
+    this.setData({
+      [componentId] : detail.value,
+      valid: this.data.masterIndex != 0 && this.data.date && this.data[componentId == 'tel' ? 'name' : tel]
+    })
   },
   formSubmit(event) {
-    console.log('[zan:field:submit]', event.detail.value);
+    util.showBusy('正在请求')
+    wx.request({
+      url: config.service.order,
+      method: 'post',
+      data: Object.assign({}, {
+        open_id: app.globalData.userInfo.data.data.openId
+      }, event.detail.value),
+      success(result) {
+        if(result.data.data === true) {
+          wx.redirectTo({
+            url: '../index/index',
+            success() {
+              util.showSuccess('预约成功')
+            }
+          })
+        }
+      }
+    })
   },
   formReset(event) {
     console.log('[zan:field:reset]', event);

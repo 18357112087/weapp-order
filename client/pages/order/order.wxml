@@ -14,6 +14,7 @@
           mode="selector"
           class="zan-field__input zan-cell__bd"
           range="{{ master }}"
+          name="master"
           range-key="{{'name'}}"
           value="{{ masterIndex }}"
           bindchange="onMasterChange"
@@ -25,6 +26,7 @@
         <picker class="zan-field__input zan-cell__bd" 
           mode="date" 
           value="{{date}}" 
+          name="date"
           start="{{startDate}}" 
           end="{{endDate}}" 
           bindchange="bindDateChange"
@@ -37,6 +39,7 @@
       <view class="zan-btns">
         <button
           class="zan-btn zan-btn--primary"
+          disabled='{{!valid}}'
           formType="submit">提交数据</button>
       </view>
     </view>

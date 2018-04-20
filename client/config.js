@@ -24,7 +24,10 @@ var config = {
         uploadUrl: `${host}/weapp/upload`,
 
         // 请求按摩师接口
-        master: `${host}/weapp/master`
+        master: `${host}/weapp/master`,
+
+        // 预约接口
+        order: `${host}/weapp/order`
     }
 };
 
